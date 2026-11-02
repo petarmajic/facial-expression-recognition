@@ -6,11 +6,17 @@ Seven-class facial-expression classification on **FER2013** using a CNN trained 
 
 [Notebook](notebooks/zavrsni.ipynb) · [Architecture](docs/architecture.md) · [Data](docs/data.md) · [Experiment](docs/experiment.md)
 
+## Expression classes
+
+![FER2013 examples of the seven target classes: angry, disgust, fear, happy, neutral, sad and surprise.](assets/dataset-examples.svg)
+
+**Figure 1.** One FER2013 training example per target class. These are dataset examples, not model predictions. [Image source](assets/source/README.md).
+
 ## Architecture
 
 ![Two-panel CNN architecture: a FER2013 face passes through six convolutional layers and three pooling stages; the resulting feature tensor feeds a 256-unit dense layer and a seven-class Softmax output.](assets/model-overview.svg)
 
-**Figure 1.** CNN implemented in the notebook. Tensor dimensions are **height × width × channels**. The input photograph illustrates the dataset; tensor volumes are schematic. The network has **1,394,183 parameters**, of which **1,391,943 are trainable**.
+**Figure 2.** CNN implemented in the notebook. Tensor dimensions are **height × width × channels**. The input photograph illustrates the dataset; tensor volumes are schematic. The network has **1,394,183 parameters**, of which **1,391,943 are trainable**.
 
 [Layer-by-layer architecture](docs/architecture.md) · [Image source](assets/source/README.md)
 
@@ -34,7 +40,7 @@ Seven-class facial-expression classification on **FER2013** using a CNN trained 
 
 ![Validation accuracy and cross-entropy over the 50 recorded epochs.](assets/validation-curves.svg)
 
-**Figure 2.** Validation metrics extracted from the saved epoch logs. The validation subset was monitored throughout training and used for checkpoint selection; **65.22% is a validation score**. A separate final test evaluation is not recorded.
+**Figure 3.** Validation metrics extracted from the saved epoch logs. The validation subset was monitored throughout training and used for checkpoint selection; **65.22% is a validation score**. A separate final test evaluation is not recorded.
 
 The saved confusion matrix needs to be recomputed with aligned prediction and label order before drawing conclusions about individual classes. [Protocol, interpretation and evaluation details →](docs/experiment.md)
 
@@ -47,4 +53,4 @@ The saved confusion matrix needs to be recomputed with aligned prediction and la
 | [Experiment](docs/experiment.md) · [Results](results/README.md) | Hyperparameters, metric tables, interpretation and extracted CSV/JSON evidence. |
 | [Execution notes](docs/reproduction.md) · [Sources](docs/evidence.md) | Environment, known execution issues, figure-generation commands and evidence references. |
 
-*Bachelor's thesis, University of Zagreb, Faculty of Electrical Engineering and Computing (FER), June 2025.*
+*Bachelor's thesis, University of Zagreb, Faculty of Electrical Engineering and Computing (FER), June 2025. Supervisor: Prof. Sonja Grgić, PhD.*
