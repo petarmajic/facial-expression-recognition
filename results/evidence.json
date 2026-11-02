@@ -1,0 +1,32 @@
+{
+  "source_notebook": "notebooks/zavrsni.ipynb",
+  "source_sha256": "d8622bd1896a88b2bf637dbba14627f9a3cdd29b2ac6a18b24f703214e401f66",
+  "cell_numbering": "zero-based JSON cell indices",
+  "dataset_source_in_code": "msambare/fer2013",
+  "generator_images": {
+    "training": 22968,
+    "validation": 1432
+  },
+  "validation_origin": "20% subset of the test directory, used throughout fit()",
+  "epochs": 50,
+  "saved_history_summary": {
+    "training_accuracy": 0.6368,
+    "validation_accuracy": 0.6522,
+    "training_loss": 0.9747,
+    "validation_loss": 0.9432,
+    "best_validation_epoch": 50
+  },
+  "model_parameters": {
+    "total": 1394183,
+    "trainable": 1391943,
+    "non_trainable": 2240
+  },
+  "epoch_csv_source": "cell 4 saved console output, rounded to four decimal places",
+  "class_counts_source": "cell 1 saved directory listing, not a new dataset scan",
+  "architecture_source": "cell 3 layer definitions; counts checked against saved summary",
+  "notes": [
+    "Training console metrics differ from the saved history summary; do not merge them.",
+    "No independent full test evaluation is saved in this notebook.",
+    "The saved confusion matrix uses a shuffled prediction generator against fixed labels."
+  ]
+}
