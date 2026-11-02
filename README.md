@@ -10,12 +10,10 @@ I implemented and trained a CNN to classify seven facial-expression categories i
 
 | Area | Work in this project | Code and evidence |
 | --- | --- | --- |
-| Image preparation | Loaded grayscale images at 48 × 48, rescaled pixels to [0, 1], and applied horizontal flips and shifts of up to 10% during training. | [Data pipeline](docs/data.md#image-pipeline) · notebook cell 2 |
-| CNN implementation | Built six 3 × 3 convolutional layers, three pooling stages, and a dense classifier with seven Softmax outputs. Used Batch Normalization and Dropout throughout the network. | [Layer shapes and parameters](docs/architecture.md) · notebook cell 3 |
-| Model training | Trained for 50 epochs with Adam and categorical cross-entropy. Configured a weights-only checkpoint selected by validation accuracy. | [Training configuration](docs/experiment.md#training-configuration) · notebook cells 3–4 |
-| Experiment analysis | Plotted training and validation curves, examined class imbalance, and produced a confusion matrix. The documentation explains which saved outputs support a result and which need further evaluation. | [Results and interpretation](docs/experiment.md#recorded-results) · notebook cells 5–8 |
-
-Cell numbers in this repository are **zero-based JSON indices**; the [notebook guide](notebooks/README.md) maps them to their contents.
+| Image preparation | Loaded 48 × 48 grayscale images, rescaled pixels to [0, 1], and applied random horizontal flips and shifts of up to 10%. | [Data pipeline](docs/data.md#image-pipeline) |
+| CNN implementation | Built six 3 × 3 convolutions, three pooling stages and a seven-class classifier, with Batch Normalization and Dropout. | [Layer shapes and parameters](docs/architecture.md) |
+| Model training | Trained with Adam and categorical cross-entropy for 50 epochs; selected the best weights by validation accuracy. | [Training configuration](docs/experiment.md#training-configuration) |
+| Experiment analysis | Plotted training and validation curves, inspected class balance and produced a confusion matrix. | [Results and interpretation](docs/experiment.md#recorded-results) |
 
 ## Model at a glance
 
