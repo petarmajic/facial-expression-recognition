@@ -2,7 +2,9 @@
 
 The implementation uses a Keras `Sequential` CNN with an input shape of **48 × 48 × 1**. It learns features directly from the images; the notebook does not load pretrained weights.
 
-![Overview of the convolutional feature extractor and seven-class classifier.](../assets/model-overview.svg)
+![Two-panel architecture showing the input image, six convolutional tensors, three pooling stages and the dense classification head.](../assets/model-overview.svg)
+
+**Figure 1.** (a) The convolutional feature extractor maps a grayscale image to a **2 × 2 × 256** tensor. (b) Flattening and a **256-unit dense layer** produce seven Softmax outputs. Tensor volumes are schematic and are not activation visualisations. The input image is an illustrative FER2013 example from the thesis montage; [source and crop details](../assets/source/README.md) are recorded separately.
 
 ## Feature extraction
 

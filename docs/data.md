@@ -2,6 +2,12 @@
 
 The notebook downloads the directory-based FER2013 release using `kagglehub.dataset_download("msambare/fer2013")`. Its saved listing contains **28,709 images in `train/`** and **7,178 in `test/`**, for **35,887 images** in total. These directory totals describe the source dataset, not the number of images used by the run.
 
+## Dataset examples
+
+![Seven FER2013 training examples, labelled angry, disgust, fear, happy, neutral, sad and surprise.](../assets/dataset-examples.svg)
+
+**Figure 1.** Examples reproduced from the training-image montage in thesis Figure 3.2. They illustrate the seven dataset labels and the variation in image appearance; they are not model predictions. The individual filenames are unavailable in that montage. [Source image and extraction details →](../assets/source/README.md)
+
 ## Class balance
 
 ![Horizontal bars showing the seven class counts in the complete source training directory.](../assets/class-distribution.svg)

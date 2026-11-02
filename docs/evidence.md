@@ -48,13 +48,15 @@ The original notebook also contains a malformed import and a weights-loading mis
 
 | File | Source and transformation |
 | --- | --- |
-| `assets/model-overview.svg` | Model definitions and verified layer shapes in cell 3; grouped diagram. |
+| `assets/model-overview.svg` | Model definitions and verified layer shapes in cell 3; schematic tensor volumes and classification head, with an illustrative image excerpt from thesis Figure 3.2. |
+| `assets/dataset-examples.svg` | Seven image excerpts from the supplied training-example montage; English labels follow the source figure's class headings. |
+| `assets/source/fer2013-training-examples.png` | Unmodified original `slike/slika4_train.png` from the supplied thesis attachments; see [image provenance](../assets/source/README.md). |
 | `assets/validation-curves.svg` | Cell 4 epoch logs → `results/epoch_metrics.csv` → two validation plots. |
 | `assets/class-distribution.svg` | Cell 1 listing → `results/class_counts.csv` → full training-directory counts. |
 | `results/architecture.csv` | Shape and parameter arithmetic from `model.add` definitions. |
 | `results/evidence.json` | Source hash, sizes, parameter totals and saved summary values. |
 
-The extraction and plotting scripts were added for documentation. They are not part of the original thesis training implementation. No model was retrained, no new predictions were generated, and no new model comparison was performed.
+The extraction and plotting scripts were added for documentation. They are not part of the original thesis training implementation. `scripts/draw_architecture.py` draws the architecture from the extracted layer table and crops the supplied image montage for illustration. It does not fabricate feature maps or class scores. No model was retrained, no new predictions were generated, and no new model comparison was performed.
 
 ## Technical references
 

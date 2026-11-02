@@ -16,9 +16,11 @@ python scripts/extract_evidence.py
 python scripts/make_figures.py
 ```
 
-`extract_evidence.py` reads the notebook as JSON, inspects selected code using `ast`, and extracts saved text outputs. It uses only the Python standard library. It writes CSV/JSON files under `results/`; `make_figures.py` reads those extracts and writes the three SVGs under `assets/`. Neither script executes notebook cells, downloads images, trains a model or runs inference.
+`extract_evidence.py` reads the notebook as JSON, inspects selected code using `ast`, and extracts saved text outputs. It uses only the Python standard library. It writes CSV/JSON files under `results/`; `make_figures.py` reads those extracts and writes four SVGs under `assets/`.
 
-SVG text is stored as glyph paths so that the figures keep the same typography in GitHub and other viewers. Images have a white background for predictable rendering in light and dark interfaces.
+The plotting entry point calls `draw_architecture.py` for the two-panel architecture and dataset examples. Image excerpts come from the original montage in `assets/source/`; Pillow, a Matplotlib dependency, reads that PNG. No separate dataset download is needed. [Image provenance](../assets/source/README.md) explains the illustration's source and limits. None of these scripts executes notebook cells, trains a model or runs inference.
+
+Figures use STIX typography and a consistent muted palette. SVG text is stored as glyph paths so that the figures keep the same typography in GitHub and other viewers. Images have a white background for predictable rendering in light and dark interfaces.
 
 ## Environment recorded in the notebook
 
