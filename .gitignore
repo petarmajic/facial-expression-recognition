@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+.DS_Store
+
+# Downloaded dataset and future training artefacts are stored separately.
+data/
+*.weights.h5
+*.keras
+training-runs/

@@ -1,0 +1,24 @@
+layer,type,details,output_shape,parameters,trainable_parameters
+1,Conv2D,32 filters; 3x3; ReLU; valid padding,46 x 46 x 32,320,320
+2,BatchNormalization,"gamma, beta, moving mean, moving variance",46 x 46 x 32,128,64
+3,Conv2D,64 filters; 3x3; ReLU; valid padding,44 x 44 x 64,18496,18496
+4,BatchNormalization,"gamma, beta, moving mean, moving variance",44 x 44 x 64,256,128
+5,MaxPooling2D,2x2; stride 2x2,22 x 22 x 64,0,0
+6,Dropout,rate 0.25,22 x 22 x 64,0,0
+7,Conv2D,128 filters; 3x3; ReLU; valid padding,20 x 20 x 128,73856,73856
+8,BatchNormalization,"gamma, beta, moving mean, moving variance",20 x 20 x 128,512,256
+9,Conv2D,128 filters; 3x3; ReLU; valid padding,18 x 18 x 128,147584,147584
+10,BatchNormalization,"gamma, beta, moving mean, moving variance",18 x 18 x 128,512,256
+11,MaxPooling2D,2x2; stride 2x2,9 x 9 x 128,0,0
+12,Dropout,rate 0.25,9 x 9 x 128,0,0
+13,Conv2D,256 filters; 3x3; ReLU; valid padding,7 x 7 x 256,295168,295168
+14,BatchNormalization,"gamma, beta, moving mean, moving variance",7 x 7 x 256,1024,512
+15,Conv2D,256 filters; 3x3; ReLU; valid padding,5 x 5 x 256,590080,590080
+16,BatchNormalization,"gamma, beta, moving mean, moving variance",5 x 5 x 256,1024,512
+17,MaxPooling2D,2x2; stride 2x2,2 x 2 x 256,0,0
+18,Dropout,rate 0.25,2 x 2 x 256,0,0
+19,Flatten,,1024,0,0
+20,Dense,256 units; relu,256,262400,262400
+21,BatchNormalization,"gamma, beta, moving mean, moving variance",256,1024,512
+22,Dropout,rate 0.5,256,0,0
+23,Dense,7 units; softmax,7,1799,1799
