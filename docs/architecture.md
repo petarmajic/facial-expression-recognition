@@ -1,16 +1,18 @@
 # Model architecture
 
-The implementation uses a Keras `Sequential` CNN with an input shape of **48 × 48 × 1**. It learns features directly from the images; the notebook does not load pretrained weights.
+The Keras `Sequential` CNN is trained from scratch on **48 × 48 × 1** grayscale inputs.
 
 ![Two-panel architecture showing the input image, six convolutional tensors, three pooling stages and the dense classification head.](../assets/model-overview.svg)
 
-**Figure 1.** (a) The convolutional feature extractor maps a grayscale image to a **2 × 2 × 256** tensor. (b) Flattening and a **256-unit dense layer** produce seven Softmax outputs. Tensor volumes are schematic and are not activation visualisations. The input image is an illustrative FER2013 example from the thesis montage; [source and crop details](../assets/source/README.md) are recorded separately.
+**Figure 1.** (a) Convolutional feature extraction produces a **2 × 2 × 256** tensor. (b) Flattening and a **256-unit dense layer** produce seven Softmax outputs. Tensor volumes are schematic. [Image source](../assets/source/README.md).
 
 ## Feature extraction
 
-For this explanation, the six convolutional layers are grouped into **three feature blocks**, each containing two convolutions, a pooling operation and Dropout. This grouping follows the implementation, rather than the five-block wording in the thesis text.
+The feature extractor has **three blocks**, each containing two convolutions, max pooling and Dropout.
 
-All convolutions use a **3 × 3 kernel**, **ReLU**, default **valid padding**, and stride 1. Batch Normalization follows every convolution. A 2 × 2 max-pooling layer then reduces spatial size, followed by Dropout at 0.25.
+All convolutions use a **3 × 3 kernel**, **ReLU**, **valid padding** and stride 1. With valid padding, each convolution reduces the image height and width by two pixels. Batch Normalization follows every convolution. A 2 × 2 max-pooling layer then halves the spatial dimensions, followed by Dropout at 0.25.
+
+During training, Batch Normalization uses batch statistics to normalise each channel. Dropout randomly sets a proportion of its inputs to zero, so the following layers cannot rely on the same set of values at every update. These operations are included in all three blocks.
 
 | Stage | Convolution outputs | Output after pooling |
 | --- | --- | --- |
@@ -19,17 +21,21 @@ All convolutions use a **3 × 3 kernel**, **ReLU**, default **valid padding**, a
 | Block 2 | 20 × 20 × 128; 18 × 18 × 128 | 9 × 9 × 128 |
 | Block 3 | 7 × 7 × 256; 5 × 5 × 256 | 2 × 2 × 256 |
 
-The number of channels increases as spatial resolution decreases. This gives the classifier a learned representation of the image without manually specified geometric or texture descriptors. The notebook does not include feature-map visualisations, so individual channels are not assigned a particular facial feature.
+Spatial resolution decreases while the channel count grows from 32 to 256. The final tensor contains the learned features passed to the classifier.
+
+The first block produces 64 feature maps at 22 × 22 pixels. The second reduces them to 9 × 9 with 128 channels, and the third produces 256 maps at 2 × 2. These sizes follow directly from the convolution and pooling settings shown in the table.
 
 ## Classifier
 
 The 2 × 2 × 256 tensor is flattened to **1,024 values**. A dense layer with **256 ReLU units**, Batch Normalization and **Dropout 0.5** precedes the final **seven-unit Softmax** layer.
 
-The output order follows the generator's alphabetical class order: `angry`, `disgust`, `fear`, `happy`, `neutral`, `sad`, `surprise`. Softmax gives seven scores summing to one; calibration of these scores was not evaluated.
+Flattening keeps all 1,024 feature values but arranges them as a vector. The dense layer combines those features for classification. Softmax converts the seven output values into scores that sum to one, and the largest score determines the predicted class.
+
+The Softmax output follows the generator's class order: `angry`, `disgust`, `fear`, `happy`, `neutral`, `sad`, `surprise`.
 
 ## Layer shapes and parameters
 
-The batch dimension is omitted below. The counts are derived from the code in notebook cell 3 and agree with its saved `model.summary()` output. The machine-readable table is [architecture.csv](../results/architecture.csv).
+The table follows the model definition and `model.summary()`, with the batch dimension omitted. The layer values are also available in [architecture.csv](../results/architecture.csv).
 
 | Layer | Output shape | Parameters |
 | --- | --- | ---: |
@@ -62,8 +68,4 @@ The batch dimension is omitted below. The counts are derived from the code in no
 
 For a convolution with a bias term, the count is `(kernel_height × kernel_width × input_channels + 1) × output_channels`. A dense layer has `(input_units + 1) × output_units`. Each Batch Normalization layer has four values per channel: two trainable parameters and two moving statistics. Pooling, Dropout and Flatten have no trainable parameters.
 
-## What the run establishes
-
-The saved outputs document one training run of this architecture. There are no ablations isolating the effect of Batch Normalization, Dropout, filter counts or augmentation. Their presence can be described precisely; an accuracy gain from any one component cannot be attributed from this experiment alone.
-
-[Experiment and results](experiment.md) · [Evidence ledger](evidence.md) · [Back to overview](../README.md)
+[Experiment and results](experiment.md) · [References](references.md) · [Overview](../README.md)

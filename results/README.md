@@ -1,23 +1,14 @@
-# Extracted experiment evidence
+# Experiment results
 
-These files are derived from the original [notebook](../notebooks/zavrsni.ipynb). They make the values behind the documentation easy to inspect. They are not new training, inference or dataset-scan results.
+The files below contain the layer dimensions, image counts and metrics used in the project figures. They come from the definitions and saved outputs in the [training notebook](../notebooks/zavrsni.ipynb).
 
-| File | Contents | Source |
-| --- | --- | --- |
-| [epoch_metrics.csv](epoch_metrics.csv) | 50 epoch rows: console training accuracy/loss and validation accuracy/loss | Cell 4 saved text output, four-decimal precision |
-| [class_counts.csv](class_counts.csv) | Seven classes, with counts in the full source `train/` and `test/` directories | Cell 1 saved listing |
-| [architecture.csv](architecture.csv) | Layer type, details, output shape, parameter count and trainable count | Cell 3 layer definitions; totals checked against saved summary |
-| [evidence.json](evidence.json) | Notebook SHA-256, actual generator sizes, parameter totals, final history summary and source notes | Cells 2, 3 and 7 |
+| File | Contents |
+| --- | --- |
+| [epoch_metrics.csv](epoch_metrics.csv) | Training and validation accuracy/loss for 50 epochs |
+| [class_counts.csv](class_counts.csv) | Image counts in the complete FER2013 training and test directories |
+| [architecture.csv](architecture.csv) | Output shapes and parameter counts for 23 layers |
+| [evidence.json](evidence.json) | Dataset subsets, parameter totals and the training-history summary |
 
-The `console_training_*` columns are labelled explicitly because the final printed console values differ from the later `history.history` summary. The new validation chart uses only the validation columns; see [recorded results](../docs/experiment.md#recorded-results).
+The epoch CSV follows the console logs; the JSON contains the printed history summary. Their final training values differ, as described in [recorded results](../docs/experiment.md#recorded-results).
 
-Class counts refer to the complete source directories. They should not be confused with the smaller subsets actually used by the generators. The [data guide](../docs/data.md) explains that distinction.
-
-## Regeneration
-
-```bash
-python scripts/extract_evidence.py
-python scripts/make_figures.py
-```
-
-Run these commands from the repository root. The first script uses only the standard library; the second requires Matplotlib. Neither script executes the model. See [setup](../docs/reproduction.md#rebuild-the-documentation-figures) and the [source ledger](../docs/evidence.md).
+[Regeneration commands](../docs/reproduction.md#rebuild-the-figures) · [Dataset](../docs/data.md) · [Overview](../README.md)

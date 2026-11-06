@@ -1,7 +1,5 @@
-# Versions visible in the original notebook's saved installation output.
-# Observed with Python 3.11. This is not a complete environment lock or a
-# training environment revalidated during documentation work.
-# Figure generation alone requires only matplotlib (and its dependencies).
+# Package versions recorded with Python 3.11 in the notebook.
+# Figures use Matplotlib and Pillow.
 tensorflow==2.18.0
 keras==3.8.0
 numpy==2.0.2

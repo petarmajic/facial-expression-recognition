@@ -1,62 +1,56 @@
 # Experiment and results
 
-This notebook records one 50-epoch run of the [CNN described here](architecture.md). The experiment asks how a convolutional classifier learns the seven FER2013 expression categories from 48 × 48 grayscale images. It uses online image augmentation, Batch Normalization and Dropout, and monitors validation accuracy and cross-entropy during training.
+The [CNN](architecture.md) was trained for 50 epochs to classify seven FER2013 expression labels from **48 × 48 grayscale images**. Training combines image augmentation, Batch Normalization and Dropout.
 
 ## Training configuration
 
-| Setting | Value in the implementation | Source cell |
-| --- | --- | --- |
-| Dataset download | `msambare/fer2013` via KaggleHub | 1 |
-| Training images | 22,968 | 2, saved output |
-| Validation images | 1,432 | 2, saved output |
-| Input | 48 × 48 × 1, grayscale, rescaled by `1./255` | 2 |
-| Labels | Seven classes, categorical encoding | 2 |
-| Training augmentation | Width/height shifts 0.1; horizontal flip | 2 |
-| Batch size | 64 | 2 |
-| Optimiser | Adam | 3 |
-| Learning rate | **0.0001** | 3 |
-| Objective | Categorical cross-entropy | 3 |
-| Fit metric | Accuracy | 3 |
-| Epochs | 50 | 4, code and saved output |
-| Steps | `len(train_generator)` / `len(validation_generator)`; saved logs show 359 / 23 batches | 4 / 8 |
-| Checkpoint | `model.weights.h5`; weights only; best `val_accuracy`, maximised | 4 |
-| Early stopping / LR schedule | Not configured | 4 |
-| Fixed random seed | Not set | 2–4 |
+| Setting | Value |
+| --- | --- |
+| Training / validation images | **22,968 / 1,432** |
+| Input | 48 × 48 × 1, rescaled by `1./255` |
+| Labels | Seven classes, categorical encoding |
+| Augmentation | Width/height shifts up to 10%; horizontal flip |
+| Batch size | 64 |
+| Optimiser | Adam |
+| Learning rate | **0.0001** |
+| Objective | Categorical cross-entropy |
+| Epochs | 50 |
+| Training / validation batches | 359 / 23 |
+| Checkpoint | `model.weights.h5`, best validation accuracy |
+| Early stopping / LR schedule | Not configured |
+| Random seed | Not set |
 
-The validation set comes from a subset of the source `test/` directory and is used during training. See the [exact split](data.md#the-split-actually-used) before comparing the result with any external benchmark.
+The validation generator selects 20% of the source `test/` directory. It is monitored during training and used for checkpoint selection. See [data preparation](data.md#the-split-actually-used).
 
 ## Recorded results
 
-| Quantity | Saved value |
+| Metric | Value |
 | --- | ---: |
-| Best validation accuracy | **0.6522 / 65.22%** |
-| Epoch of best validation accuracy | **50** |
-| Validation loss at epoch 50 | **0.9432** |
-| Lowest recorded validation loss | **0.9432**, epoch 50 |
-| Final training accuracy in the saved history summary | 0.6368 / 63.68% |
-| Final training loss in the saved history summary | 0.9747 |
+| Best validation accuracy | **65.22%** |
+| Best epoch | **50** |
+| Validation cross-entropy at epoch 50 | **0.9432** |
+| Final training accuracy in the history summary | 63.68% |
+| Final training loss in the history summary | 0.9747 |
 
-These values are read from the printed `history.history` summary in cell 7. The epoch-50 checkpoint message reports validation accuracy to five decimals, `0.65223`; the summary rounds this to `0.6522`.
+The values above follow the printed `history.history` summary. The checkpoint log reports the same validation accuracy at higher precision: `0.65223`.
 
-![Validation accuracy and loss from all 50 saved epoch-end log lines.](../assets/validation-curves.svg)
+![Validation accuracy and cross-entropy over 50 epochs.](../assets/validation-curves.svg)
 
-The figure uses [epoch_metrics.csv](../results/epoch_metrics.csv), extracted from the saved epoch-end console lines in cell 4. Values there are rounded to four decimal places. The figure plots only validation metrics: the final training console values, `0.6327` accuracy and `0.9799` loss, differ from the history summary's `0.6368` and `0.9747`. Both records remain available; they are not silently combined into one training curve.
+**Figure 1.** Validation accuracy increases from **21.30% to 65.22%**, while cross-entropy decreases from **1.8888 to 0.9432**. The best values occur at the final recorded epoch. The plotted values are in [epoch_metrics.csv](../results/epoch_metrics.csv).
 
-## Reading the learning curves
+The CSV follows the epoch logs. Its final training accuracy and loss are **0.6327** and **0.9799**, while the history summary reports **0.6368** and **0.9747**. The figure uses the validation series, which agree across both records.
 
-Validation accuracy rises from 21.30% in the first epoch to 65.22% in epoch 50, while validation loss decreases from 1.8888 to 0.9432. Improvement slows in the later epochs, but the best recorded score is still at the end of the run. These observations do not establish that further training would improve the model, or that epoch 50 is optimal beyond this run.
+## Interpretation
 
-The original plots and history summary show validation accuracy slightly above training accuracy. Training includes random augmentation and active Dropout; validation is evaluated without those training-time transformations. The conditions are therefore different. The curves alone are not proof of generalisation to new populations or the absence of overfitting. See the [Keras explanation of training versus validation loss](https://keras.io/getting_started/faq/#why-is-my-training-loss-much-higher-than-my-testing-loss).
+The validation curves continue to improve late in the run, although the changes become smaller. The final epoch gives both the highest validation accuracy and the lowest validation loss.
 
-## Evaluation details
+Training applies random image augmentation and active Dropout. Validation uses rescaled images without augmentation, and Dropout is disabled. The two scores are therefore calculated under different conditions, which helps explain why validation accuracy can exceed training accuracy. [Keras explanation](https://keras.io/getting_started/faq/#why-is-my-training-loss-much-higher-than-my-testing-loss).
 
-### Validation and test roles
+The experiment contains one training run. The reported score is validation accuracy used for model selection; no separate final test score or controlled architecture comparison is available.
 
-The same 1,432-image validation subset is monitored after every epoch and determines which checkpoint is saved. The notebook does not report a separate full-test evaluation after model selection. Consequently, the reported 65.22% should be described as **best recorded validation accuracy for this run**.
+## Confusion-matrix ordering
 
-### Confusion-matrix ordering
-
-Cell 8 performs these operations:
+The notebook creates its confusion matrix with:
 
 ```python
 validation_labels = validation_generator.classes
@@ -65,27 +59,10 @@ validation_pred_labels = np.argmax(validation_pred_probs, axis=1)
 confusion_mtx = confusion_matrix(validation_labels, validation_pred_labels)
 ```
 
-The generator in cell 2 does not set `shuffle=False`. Its default is `True`, so prediction order does not match the fixed-order `.classes` vector. Batch labels are paired correctly during `fit()` validation; the issue concerns the later, separately assembled confusion matrix.
+The validation generator uses the default `shuffle=True`. The predictions can therefore arrive in a different order from the fixed `.classes` vector. Comparing them directly pairs predictions with the wrong labels, so the saved matrix cannot support per-class precision, recall or F1.
 
-The saved matrix has 269 diagonal entries out of 1,432 observations, approximately 18.78%, which is inconsistent with the recorded validation accuracy. This calculation is a consistency check on the saved artefact, **not a new model score**. Class-specific recall, precision and F1 cannot be established from that matrix. In particular, its zero diagonal entry for `disgust` does not justify concluding that the trained model never recognises that class.
+The accuracy reported by `model.fit()` uses correctly paired batch labels. The ordering error arises later when the notebook builds a confusion matrix from separate predictions.
 
-To repeat this part of evaluation, recreate the same validation subset with `shuffle=False`, load the matching trained weights, and pair its predictions with its own class labels. No corrected matrix is included here because the supplied attachments do not contain the checkpoint. Changing prediction order does not require retraining if the original weights can be recovered.
+A correct matrix requires an unshuffled prediction iterator, its matching labels and the trained checkpoint. The checkpoint is not included in the repository.
 
-Implementation reference: [Keras 3.8.0 `DirectoryIterator` and `ImageDataGenerator`](https://github.com/keras-team/keras/blob/v3.8.0/keras/src/legacy/preprocessing/image.py).
-
-### Scope of the conclusions
-
-The saved outputs support the implementation, configuration and learning trend described above. They do not provide repeated runs, cross-validation, uncertainty intervals, an independently evaluated test score or a controlled comparison against another architecture. Class weighting and oversampling are not applied in the recorded training call.
-
-The problem is classification of **dataset expression labels** from images. The experiment does not validate a person's internal emotional state or establish suitability for clinical or other consequential decisions.
-
-## Further experiments
-
-The following would extend the project; they are not completed results:
-
-1. Recover the weights and repeat prediction with fixed ordering; report per-class precision, recall, F1 and support, plus macro F1.
-2. Define training/validation/test roles before a new run, keeping the final test set outside model selection.
-3. Compare class weighting with the original loss under the same split, training budget and seeds.
-4. Evaluate augmentation or regularisation changes one at a time, rather than attributing improvements to several simultaneous changes.
-
-[Evidence and source differences](evidence.md) · [Execution notes](reproduction.md) · [Back to overview](../README.md)
+[Results files](../results/README.md) · [Execution](reproduction.md) · [Overview](../README.md)
