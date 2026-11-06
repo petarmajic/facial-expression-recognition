@@ -1,4 +1,4 @@
-"""Build README figures from extracted notebook evidence. No model execution."""
+"""Plot the CNN architecture, dataset examples and recorded validation metrics."""
 
 import csv
 from pathlib import Path

@@ -1,12 +1,7 @@
-"""Extract documentation data from saved notebook cells without executing them.
-
-This reader is specific to the archived thesis notebook. It does not load
-TensorFlow, download FER2013, run inference, or train a model.
-"""
+"""Extract layer dimensions, class counts and metrics from the thesis notebook."""
 
 import ast
 import csv
-import hashlib
 import json
 import math
 from pathlib import Path
@@ -129,8 +124,6 @@ def main():
     assert totals == [22968, 1432]
     evidence = {
         "source_notebook": "notebooks/zavrsni.ipynb",
-        "source_sha256": hashlib.sha256(notebook_bytes).hexdigest(),
-        "cell_numbering": "zero-based JSON cell indices",
         "dataset_source_in_code": "msambare/fer2013",
         "generator_images": {"training": totals[0], "validation": totals[1]},
         "validation_origin": "20% subset of the test directory, used throughout fit()",
@@ -144,11 +137,11 @@ def main():
         },
         "model_parameters": {"total": 1394183, "trainable": 1391943,
                              "non_trainable": 2240},
-        "epoch_csv_source": "cell 4 saved console output, rounded to four decimal places",
-        "class_counts_source": "cell 1 saved directory listing, not a new dataset scan",
-        "architecture_source": "cell 3 layer definitions; counts checked against saved summary",
+        "epoch_csv_source": "saved epoch logs, rounded to four decimal places",
+        "class_counts_source": "saved training and test directory listing",
+        "architecture_source": "layer definitions and model summary",
         "notes": [
-            "Training console metrics differ from the saved history summary; do not merge them.",
+            "Final training metrics differ between the console logs and history summary.",
             "No independent full test evaluation is saved in this notebook.",
             "The saved confusion matrix uses a shuffled prediction generator against fixed labels."
         ]
@@ -156,7 +149,6 @@ def main():
     (RESULTS / "evidence.json").write_text(json.dumps(evidence, indent=2) + "\n")
     print(f"Extracted {len(epoch_rows)} epoch rows, {len(class_rows)} class counts "
           f"and {len(layer_rows)} layer records.")
-    print("Source notebook SHA-256:", evidence["source_sha256"])
 
 
 if __name__ == "__main__":

@@ -1,16 +1,16 @@
 # Data and preprocessing
 
-The notebook downloads the directory-based FER2013 release using `kagglehub.dataset_download("msambare/fer2013")`. Its saved listing contains **28,709 images in `train/`** and **7,178 in `test/`**, for **35,887 images** in total. These directory totals describe the source dataset, not the number of images used by the run.
+The notebook loads the [FER2013 directory dataset](https://www.kaggle.com/datasets/msambare/fer2013) through `kagglehub.dataset_download("msambare/fer2013")`. It contains **28,709 images in `train/`** and **7,178 in `test/`**, for **35,887 images** in total.
 
 ## Dataset examples
 
-![Seven FER2013 training examples, labelled angry, disgust, fear, happy, neutral, sad and surprise.](../assets/dataset-examples.svg)
+![FER2013 examples of angry, disgust, fear, happy, neutral, sad and surprise.](../assets/dataset-examples.svg)
 
-**Figure 1.** Examples reproduced from the training-image montage in thesis Figure 3.2. They illustrate the seven dataset labels and the variation in image appearance; they are not model predictions. The individual filenames are unavailable in that montage. [Source image and extraction details →](../assets/source/README.md)
+**Figure 1.** Examples of the seven expression classes, from thesis Figure 3.2. [Image source](../assets/source/README.md).
 
-## Class balance
+## Images per class
 
-![Horizontal bars showing the seven class counts in the complete source training directory.](../assets/class-distribution.svg)
+![Class counts in the complete FER2013 training directory.](../assets/class-distribution.svg)
 
 | Label | Source `train/` | Source `test/` |
 | --- | ---: | ---: |
@@ -23,46 +23,38 @@ The notebook downloads the directory-based FER2013 release using `kagglehub.data
 | surprise | 3,171 | 831 |
 | **Total** | **28,709** | **7,178** |
 
-These counts are extracted from notebook cell 1's saved directory listing. The chart shows the complete source training directory **before** the generator applies its subset rule. It is not a fresh scan of downloaded data. See [class_counts.csv](../results/class_counts.csv).
+Happy accounts for approximately **25.1%** of the training directory, compared with **1.5%** for disgust. The chart and [class_counts.csv](../results/class_counts.csv) describe these full directories, before subset selection.
 
-`Happy` makes up approximately 25.1% of the source training images; `disgust` accounts for approximately 1.5%. This is an observed imbalance in the data. It does not, by itself, establish the model's recall for either class.
+The classes therefore contribute very different numbers of training examples. These counts give context to the overall accuracy, which combines predictions from all seven classes into one number.
 
-## Image pipeline
+## Image preprocessing
 
-| Setting | Training generator | Validation generator |
+| Setting | Training | Validation |
 | --- | --- | --- |
-| Loader | Keras `ImageDataGenerator.flow_from_directory` | Same loader |
+| Loader | Keras `ImageDataGenerator.flow_from_directory` | Same |
 | Target size | 48 × 48 | 48 × 48 |
 | Colour mode | Grayscale | Grayscale |
 | Pixel rescaling | `1./255` | `1./255` |
 | Labels | Categorical / one-hot | Categorical / one-hot |
 | Batch size | 64 | 64 |
-| Width / height shifts | Up to 0.1 of the image dimension | None configured |
-| Horizontal flips | Enabled | Disabled by default |
+| Width / height shifts | Up to 10% of the image dimension | None |
+| Horizontal flips | Enabled | Disabled |
 | Shuffle | Default `True` | Default `True` |
-| Explicit random seed | None | None |
+| Random seed | Not set | Not set |
 
-The code does not implement a separate face detector, alignment stage or background-removal model. It operates on the images provided in FER2013. Imports such as OpenCV and `compute_class_weight` are not evidence that these techniques were used: neither is called in this notebook's training pipeline.
+The loader converts each image to grayscale, resizes it to 48 × 48 and divides pixel values by 255. During training, random shifts and horizontal flips provide variations of the input images. Validation uses the same size and pixel scale without those augmentations.
 
 ## The split actually used
 
-Both generators set `validation_split=0.2`, but they read **different directories**:
+Both generators use `validation_split=0.2`, applied within their respective class directories:
 
-| Generator | Directory | Subset argument | Saved number of images | Role |
+| Generator | Directory | Subset | Images | Role |
 | --- | --- | --- | ---: | --- |
 | Training | `train/` | `training` | **22,968** | Gradient updates |
-| Validation | `test/` | `validation` | **1,432** | Per-epoch validation and checkpoint selection |
+| Validation | `test/` | `validation` | **1,432** | Per-epoch evaluation and checkpoint selection |
 
-This is not a conventional 80/20 division of one training directory. Keras selects the relevant fraction within each class directory. The totals are confirmed by the saved `Found ... images belonging to 7 classes` output in cell 2.
+Training uses 80% of the source training directory and validation uses 20% of the source test directory. Keras selects these fractions within each class directory. The folder names alone therefore do not describe the experiment's actual training and validation sizes.
 
-The selected training data excludes 5,741 images from `train/`; the selected validation data excludes 5,746 images from `test/`. These excluded images have no additional evaluation role in the saved run. The directory listing also shows both `PublicTest_` and `PrivateTest_` filenames under `test/`, so the reported result should not be presented as a standard FER2013 private-test benchmark.
+The reported **65.22%** is measured on the 1,432-image validation subset. That subset was also used to choose the saved weights. A separate final test evaluation is not recorded.
 
-No separate evaluation on the entire untouched test directory is saved. A future experiment should define training, validation and test roles explicitly before training; that would be a new protocol and should be reported separately.
-
-## Data access
-
-FER2013 images are obtained from the [source Kaggle dataset](https://www.kaggle.com/datasets/msambare/fer2013). The repository contains the original notebook and small evidence extracts, rather than a copy of the image dataset. Refer to the provider for data access and distribution terms.
-
-Implementation reference: [Keras 3.8.0 directory iterator and subset logic](https://github.com/keras-team/keras/blob/v3.8.0/keras/src/legacy/preprocessing/image.py).
-
-[Experiment](experiment.md) · [Running the notebook](reproduction.md) · [Back to overview](../README.md)
+[Experiment](experiment.md) · [Execution](reproduction.md) · [Overview](../README.md)

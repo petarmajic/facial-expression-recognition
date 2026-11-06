@@ -1,8 +1,4 @@
-"""Draw the thesis CNN as a two-panel scientific architecture figure.
-
-Tensor shapes are read from the extracted layer table. Tensor volumes and
-neuron glyphs are schematic; no activations or predictions are fabricated.
-"""
+"""Draw the CNN architecture and FER2013 class examples."""
 
 import csv
 from pathlib import Path
@@ -92,7 +88,7 @@ def draw_architecture():
         c1_channels=int(c1['output_shape'].split(' x ')[-1])
         c2_channels=int(c2['output_shape'].split(' x ')[-1])
         x1,x2,xp=left,left+98,left+210
-        # Larger channel counts use a deeper schematic volume, not more fake maps.
+        # Volume depth indicates the increasing channel count schematically.
         d1=14+stage*5;d2=19+stage*5
         e1=volume(ax,x1,174,32,h1,d1,CONV,CONV_SIDE)
         e2=volume(ax,x2,174,37,h2,d2,CONV,CONV_SIDE)
@@ -174,4 +170,4 @@ def draw_dataset_examples():
 if __name__=='__main__':
     draw_architecture()
     draw_dataset_examples()
-    print('Built architecture and dataset-example figures from verified source assets.')
+    print('Generated architecture and dataset-example figures.')

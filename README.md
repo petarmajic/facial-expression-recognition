@@ -1,6 +1,6 @@
 # Facial Expression Recognition
 
-Seven-class facial-expression classification on **FER2013** using a CNN trained from scratch. The experiment examines learning from **48 × 48 grayscale images**, with a focus on convolutional feature extraction, regularisation and class imbalance.
+I trained a convolutional neural network from scratch to classify **48 × 48 grayscale face images** into seven FER2013 expression categories. The project covers image loading and augmentation, CNN design in Keras, training and analysis of the validation results.
 
 **Python · TensorFlow / Keras · NumPy · Matplotlib / Seaborn**
 
@@ -10,26 +10,30 @@ Seven-class facial-expression classification on **FER2013** using a CNN trained 
 
 ![FER2013 examples of the seven target classes: angry, disgust, fear, happy, neutral, sad and surprise.](assets/dataset-examples.svg)
 
-**Figure 1.** One FER2013 training example per target class. These are dataset examples, not model predictions. [Image source](assets/source/README.md).
+**Figure 1.** FER2013 examples of the seven expression classes. [Image source](assets/source/README.md).
 
 ## Architecture
 
 ![Two-panel CNN architecture: a FER2013 face passes through six convolutional layers and three pooling stages; the resulting feature tensor feeds a 256-unit dense layer and a seven-class Softmax output.](assets/model-overview.svg)
 
-**Figure 2.** CNN implemented in the notebook. Tensor dimensions are **height × width × channels**. The input photograph illustrates the dataset; tensor volumes are schematic. The network has **1,394,183 parameters**, of which **1,391,943 are trainable**.
+**Figure 2.** Six convolutional layers and three pooling stages feed a dense classifier. Tensor dimensions are **height × width × channels**; volumes are schematic. The network has **1,394,183 parameters**, of which **1,391,943 are trainable**.
 
-[Layer-by-layer architecture](docs/architecture.md) · [Image source](assets/source/README.md)
+[Layer-by-layer architecture](docs/architecture.md)
+
+Each feature block applies two convolutions followed by max pooling and Dropout. As the image becomes smaller, the network increases the number of feature channels. The final **2 × 2 × 256** tensor is flattened into 1,024 values and passed to a 256-unit dense layer and the seven-class Softmax output.
 
 ## What I implemented
 
 | Area | Technical work | Details |
 | --- | --- | --- |
-| Image pipeline | Grayscale loading, pixel rescaling, random shifts and horizontal flips. | [Preprocessing](docs/data.md#image-pipeline) |
+| Image preprocessing | Loaded grayscale images, rescaled pixels to 0–1 and applied random shifts and horizontal flips. | [Preprocessing](docs/data.md#image-preprocessing) |
 | CNN | Six 3 × 3 convolutions, max pooling, Batch Normalization, Dropout and a dense classifier. | [Model definition](docs/architecture.md) |
-| Training | Adam, categorical cross-entropy and checkpoint selection by validation accuracy. | [Configuration](docs/experiment.md#training-configuration) |
-| Analysis | Learning curves, class-distribution analysis and review of the saved evaluation outputs. | [Findings](docs/experiment.md#recorded-results) |
+| Training | Trained for 50 epochs with Adam and categorical cross-entropy, saving weights when validation accuracy improved. | [Configuration](docs/experiment.md#training-configuration) |
+| Analysis | Examined image counts by class, plotted learning curves and checked how validation results were calculated. | [Findings](docs/experiment.md#recorded-results) |
 
 ## Recorded experiment
+
+After each epoch, I evaluated the model on the validation subset. A checkpoint callback kept the weights with the highest validation accuracy.
 
 | Setting or result | Value |
 | --- | --- |
@@ -40,17 +44,19 @@ Seven-class facial-expression classification on **FER2013** using a CNN trained 
 
 ![Validation accuracy and cross-entropy over the 50 recorded epochs.](assets/validation-curves.svg)
 
-**Figure 3.** Validation metrics extracted from the saved epoch logs. The validation subset was monitored throughout training and used for checkpoint selection; **65.22% is a validation score**. A separate final test evaluation is not recorded.
+**Figure 3.** Validation accuracy and cross-entropy over the 50 training epochs.
 
-The saved confusion matrix needs to be recomputed with aligned prediction and label order before drawing conclusions about individual classes. [Protocol, interpretation and evaluation details →](docs/experiment.md)
+Validation accuracy rose from 21.30% to 65.22% while the loss fell from 1.8888 to 0.9432. Both reached their best recorded value at epoch 50. This is a validation result from one training run; the notebook does not report a separate final test score.
 
-## Code and documentation
+[Training setup and evaluation](docs/experiment.md)
+
+## Repository guide
 
 | Resource | Contents |
 | --- | --- |
-| [Original notebook](notebooks/zavrsni.ipynb) · [Cell guide](notebooks/README.md) | Implementation, model summary, training logs and original plots. |
-| [Data](docs/data.md) · [Architecture](docs/architecture.md) | Dataset examples, class balance, preprocessing and exact layer dimensions. |
-| [Experiment](docs/experiment.md) · [Results](results/README.md) | Hyperparameters, metric tables, interpretation and extracted CSV/JSON evidence. |
-| [Execution notes](docs/reproduction.md) · [Sources](docs/evidence.md) | Environment, known execution issues, figure-generation commands and evidence references. |
+| [Notebook](notebooks/zavrsni.ipynb) · [Notebook guide](notebooks/README.md) | Image loading, augmentation, model definition, training logs and plots. |
+| [Data](docs/data.md) · [Architecture](docs/architecture.md) | Dataset examples, images per class, preprocessing and layer dimensions. |
+| [Experiment](docs/experiment.md) · [Results](results/README.md) | Hyperparameters, learning curves and metric tables. |
+| [Execution](docs/reproduction.md) · [References](docs/references.md) | Environment, notebook setup, figure commands and thesis reference. |
 
 *Bachelor's thesis, University of Zagreb, Faculty of Electrical Engineering and Computing (FER), June 2025. Supervisor: Prof. Sonja Grgić, PhD.*
