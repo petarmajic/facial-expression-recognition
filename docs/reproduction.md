@@ -1,45 +1,28 @@
 # Execution
 
-[Notebook](../notebooks/zavrsni.ipynb) · [Notebook guide](../notebooks/README.md)
+The [training notebook](../notebooks/zavrsni.ipynb) includes the output of the original run. To inspect the learning curves or regenerate the figures, you can work from those outputs. To train another model, you will need the FER2013 images and the notebook adjustments below.
 
 ## Environment
 
-The notebook records **Python 3.11**, **TensorFlow 2.18.0** and **Keras 3.8.0**. Package versions are listed in [requirements-observed.txt](../requirements-observed.txt).
-
-Images are downloaded through KaggleHub. The generators use `/kaggle/input/fer2013/train` and `/kaggle/input/fer2013/test`; adapt these to the downloaded dataset location in your environment.
+I trained the CNN with **Python 3.11**, **TensorFlow 2.18.0** and **Keras 3.8.0**. The first notebook cell prints the installed package versions. [Packages recorded during training](../requirements-observed.txt).
 
 ## Training notebook setup
 
-The first two lines of the training cell are damaged. Replace both with the callback import shown below, then adjust the dataset paths and loading settings for your environment.
-
-| Part | Required setup |
-| --- | --- |
-| Callback import | Replace the first two lines of the training cell with `from tensorflow.keras.callbacks import ModelCheckpoint`. |
-| Input paths | Point the generators to the FER2013 `train/` and `test/` directories. |
-| Data subsets | The recorded run uses 80% of `train/` for training and 20% of `test/` for validation. |
-| Prediction iterator | Set `shuffle=False` when producing a confusion matrix and use that iterator's labels. |
-| Weights loading | Build the model architecture, then call `model.load_weights("model.weights.h5")`. |
-
-The checkpoint callback uses `save_weights_only=True`. To load a checkpoint, first build the same model architecture and then load its weights:
-
-```python
-model.load_weights("model.weights.h5")
-```
-
-The repository contains the training logs and results, but the dataset and trained checkpoint must be obtained separately.
+1. **Point both generators to the downloaded images.** The KaggleHub download cell already sets `train_path` and `test_path`. In the next cell, use `train_dir = train_path` and `test_dir = test_path` in place of the fixed paths `/kaggle/input/fer2013/train` and `/kaggle/input/fer2013/test`. To follow the recorded split, keep the training subset of `train/` (80%) and the validation subset of `test/` (20%).
+2. **Repair the callback import.** The first two lines of the archived training cell read `Žr` and `om tensorflow.keras.callbacks import ModelCheckpoint`. Replace both lines with `from tensorflow.keras.callbacks import ModelCheckpoint` before running the cell.
+3. **Load the saved weights into the CNN.** The callback writes weights only when validation accuracy improves. After training, replace the final cell’s `load_model` call with `model.load_weights("model.weights.h5")`. In a fresh session, run the model definition cell first. The repository includes the logs, but you will need to train the model or supply a compatible checkpoint to run predictions.
+4. **Keep prediction order fixed for the confusion matrix.** Create a separate iterator from `validation_datagen` using the same directory, image and label settings as `validation_generator`. Keep `subset="validation"` and pass `shuffle=False`. Use that iterator for both `model.predict(...)` and `.classes` so each prediction is compared with the label of the same image. [How ordering affects the saved matrix](experiment.md#confusion-matrix-ordering).
 
 ## Rebuild the figures
 
-From the repository root:
+Run these commands from the repository root to recreate the published figures from the notebook’s saved outputs and the included [FER2013 example image](../assets/source/README.md).
 
 ```bash
-python -m pip install matplotlib==3.10.0
+python -m pip install matplotlib==3.10.8 pillow==13.0.0
 python scripts/extract_evidence.py
 python scripts/make_figures.py
 ```
 
-`extract_evidence.py` reads model definitions and saved outputs into the CSV/JSON files in [results/](../results/README.md). `make_figures.py` builds the architecture, expression examples, class-distribution chart and validation curves. Image examples come from [assets/source/](../assets/source/README.md).
+The first script reads the model definition and training logs and writes the [result tables](../results/README.md). The second draws the architecture, expression examples, class counts and validation curves. The plotting environment above reproduces the committed figures. The original training environment used Matplotlib 3.10.0 and Pillow 11.2.1.
 
-The figures use Matplotlib, Pillow and the included result files.
-
-[Experiment](experiment.md) · [References](references.md) · [Overview](../README.md)
+[Notebook guide](../notebooks/README.md) · [Experiment](experiment.md) · [References](references.md) · [Overview](../README.md)
