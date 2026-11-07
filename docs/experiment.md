@@ -1,6 +1,6 @@
 # Experiment and results
 
-The [CNN](architecture.md) was trained for 50 epochs to classify seven FER2013 expression labels from **48 × 48 grayscale images**. Training combines image augmentation, Batch Normalization and Dropout.
+I trained the [CNN](architecture.md) for 50 epochs on **48 × 48 grayscale images** from FER2013. It predicted one of seven expression labels. I used shifts and flips to augment the training images and applied Batch Normalization and Dropout inside the network.
 
 ## Training configuration
 
@@ -20,7 +20,7 @@ The [CNN](architecture.md) was trained for 50 epochs to classify seven FER2013 e
 | Early stopping / LR schedule | Not configured |
 | Random seed | Not set |
 
-The validation generator selects 20% of the source `test/` directory. It is monitored during training and used for checkpoint selection. See [data preparation](data.md#the-split-actually-used).
+I used 20% of the source `test/` directory for validation. At the end of each epoch, Keras evaluated the same subset and saved the weights if validation accuracy had improved. [How the generators selected the images](data.md#the-split-actually-used).
 
 ## Recorded results
 
@@ -32,25 +32,23 @@ The validation generator selects 20% of the source `test/` directory. It is moni
 | Final training accuracy in the history summary | 63.68% |
 | Final training loss in the history summary | 0.9747 |
 
-The values above follow the printed `history.history` summary. The checkpoint log reports the same validation accuracy at higher precision: `0.65223`.
+I took the final training values from the printed `history.history` summary. The checkpoint log gives the best validation accuracy to five decimal places (`0.65223`).
 
 ![Validation accuracy and cross-entropy over 50 epochs.](../assets/validation-curves.svg)
 
-**Figure 1.** Validation accuracy increases from **21.30% to 65.22%**, while cross-entropy decreases from **1.8888 to 0.9432**. The best values occur at the final recorded epoch. The plotted values are in [epoch_metrics.csv](../results/epoch_metrics.csv).
+**Figure 1.** Validation accuracy rose from **21.30% to 65.22%** and cross-entropy fell from **1.8888 to 0.9432** between the first and last epochs. [Values plotted from the epoch logs](../results/epoch_metrics.csv).
 
-The CSV follows the epoch logs. Its final training accuracy and loss are **0.6327** and **0.9799**, while the history summary reports **0.6368** and **0.9747**. The figure uses the validation series, which agree across both records.
+The two records agree on the validation metrics. For the final training epoch, the console printed an accuracy of **0.6327** and a loss of **0.9799**. The history summary printed **0.6368** and **0.9747**.
 
 ## Interpretation
 
-The validation curves continue to improve late in the run, although the changes become smaller. The final epoch gives both the highest validation accuracy and the lowest validation loss.
+Validation accuracy was still improving late in the run. Epoch 50 had both the highest validation accuracy and the lowest validation loss. The same validation subset determined which weights to save. This was a single run with no separate final test evaluation or controlled architecture comparison.
 
-Training applies random image augmentation and active Dropout. Validation uses rescaled images without augmentation, and Dropout is disabled. The two scores are therefore calculated under different conditions, which helps explain why validation accuracy can exceed training accuracy. [Keras explanation](https://keras.io/getting_started/faq/#why-is-my-training-loss-much-higher-than-my-testing-loss).
-
-The experiment contains one training run. The reported score is validation accuracy used for model selection; no separate final test score or controlled architecture comparison is available.
+The validation accuracy also finished above the training accuracy. Keras applied random image shifts, flips and Dropout during training. During validation it used rescaled images and disabled Dropout, so the two scores reflect different conditions. [Keras explanation](https://keras.io/getting_started/faq/#why-is-my-training-loss-much-higher-than-my-testing-loss).
 
 ## Confusion-matrix ordering
 
-The notebook creates its confusion matrix with:
+I checked how the notebook pairs each predicted class with its label when it builds the confusion matrix.
 
 ```python
 validation_labels = validation_generator.classes
@@ -59,10 +57,8 @@ validation_pred_labels = np.argmax(validation_pred_probs, axis=1)
 confusion_mtx = confusion_matrix(validation_labels, validation_pred_labels)
 ```
 
-The validation generator uses the default `shuffle=True`. The predictions can therefore arrive in a different order from the fixed `.classes` vector. Comparing them directly pairs predictions with the wrong labels, so the saved matrix cannot support per-class precision, recall or F1.
+The generator defaults to `shuffle=True`, so prediction order can differ from the directory order in `.classes`. That mismatch makes the saved matrix unreliable for per-class precision, recall or F1. The validation accuracy from `model.fit()` uses the labels that accompany each batch and is unaffected by this later step.
 
-The accuracy reported by `model.fit()` uses correctly paired batch labels. The ordering error arises later when the notebook builds a confusion matrix from separate predictions.
-
-A correct matrix requires an unshuffled prediction iterator, its matching labels and the trained checkpoint. The checkpoint is not included in the repository.
+To recompute the matrix, I would load the trained checkpoint and predict with `shuffle=False` so the predictions line up with their labels. The checkpoint is absent from the repository.
 
 [Results files](../results/README.md) · [Execution](reproduction.md) · [Overview](../README.md)

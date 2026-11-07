@@ -1,54 +1,45 @@
 # Facial Expression Recognition
 
-I trained a convolutional neural network from scratch to classify **48 × 48 grayscale face images** into seven FER2013 expression categories. The project covers image loading and augmentation, CNN design in Keras, training and analysis of the validation results.
+Given a **48 × 48 grayscale image** of a face, the model predicts one of seven expression labels in FER2013. For my bachelor’s thesis, I built a convolutional neural network in Keras and trained it from scratch. Its best checkpoint classified **65.22% of the 1,432 validation images** correctly.
 
-**Python · TensorFlow / Keras · NumPy · Matplotlib / Seaborn**
-
-[Notebook](notebooks/zavrsni.ipynb) · [Architecture](docs/architecture.md) · [Data](docs/data.md) · [Experiment](docs/experiment.md)
+[Training notebook](notebooks/zavrsni.ipynb) · [Experiment details](docs/experiment.md)
 
 ## Expression classes
 
-![FER2013 examples of the seven target classes: angry, disgust, fear, happy, neutral, sad and surprise.](assets/dataset-examples.svg)
+![FER2013 face images labelled angry, disgust, fear, happy, neutral, sad and surprise.](assets/dataset-examples.svg)
 
-**Figure 1.** FER2013 examples of the seven expression classes. [Image source](assets/source/README.md).
+**Figure 1.** One FER2013 example per class, in the order used by the classifier (*angry*, *disgust*, *fear*, *happy*, *neutral*, *sad*, *surprise*). [Image source](assets/source/README.md).
+
+I counted the images in each class before training. The full training directory contains 7,215 images labelled *happy* and just 436 labelled *disgust*, so accuracy across all seven classes tells us little about how well the model recognises the rarest expression. [Class counts](docs/data.md#images-per-class).
 
 ## Architecture
 
-![Two-panel CNN architecture: a FER2013 face passes through six convolutional layers and three pooling stages; the resulting feature tensor feeds a 256-unit dense layer and a seven-class Softmax output.](assets/model-overview.svg)
+I used three convolutional blocks to extract features from the face. Each block applies two 3 × 3 convolutions with Batch Normalization, followed by max pooling and Dropout. As the spatial dimensions shrink, the network uses more channels. By the third pooling layer, the original face is represented by a **2 × 2 × 256** tensor.
 
-**Figure 2.** Six convolutional layers and three pooling stages feed a dense classifier. Tensor dimensions are **height × width × channels**; volumes are schematic. The network has **1,394,183 parameters**, of which **1,391,943 are trainable**.
+![Six convolutional layers and three pooling stages turn a grayscale face into a feature tensor. A dense classifier maps those features to seven expression scores.](assets/model-overview.svg)
 
-[Layer-by-layer architecture](docs/architecture.md)
+**Figure 2.** Tensor dimensions are height × width × channels. The volumes are schematic. [Layer-by-layer architecture](docs/architecture.md).
 
-Each feature block applies two convolutions followed by max pooling and Dropout. As the image becomes smaller, the network increases the number of feature channels. The final **2 × 2 × 256** tensor is flattened into 1,024 values and passed to a 256-unit dense layer and the seven-class Softmax output.
-
-## What I implemented
-
-| Area | Technical work | Details |
-| --- | --- | --- |
-| Image preprocessing | Loaded grayscale images, rescaled pixels to 0–1 and applied random shifts and horizontal flips. | [Preprocessing](docs/data.md#image-preprocessing) |
-| CNN | Six 3 × 3 convolutions, max pooling, Batch Normalization, Dropout and a dense classifier. | [Model definition](docs/architecture.md) |
-| Training | Trained for 50 epochs with Adam and categorical cross-entropy, saving weights when validation accuracy improved. | [Configuration](docs/experiment.md#training-configuration) |
-| Analysis | Examined image counts by class, plotted learning curves and checked how validation results were calculated. | [Findings](docs/experiment.md#recorded-results) |
+The classifier flattens the tensor into 1,024 values and feeds them to a 256-unit dense layer. A seven-class softmax gives a score for each expression. The model has **1,394,183 parameters**, of which **1,391,943 are trainable**.
 
 ## Recorded experiment
 
-After each epoch, I evaluated the model on the validation subset. A checkpoint callback kept the weights with the highest validation accuracy.
+I trained on **22,968 images** and used a separate subset of **1,432 images** from the FER2013 `test/` directory for validation. I rescaled pixel values to 0–1 in both subsets. During training I also shifted images horizontally and vertically and flipped some left to right, so the network saw the same faces in slightly different positions. [Preprocessing settings](docs/data.md#image-preprocessing).
 
-| Setting or result | Value |
-| --- | --- |
-| Images used | **22,968 training · 1,432 validation** |
-| Training setup | 50 epochs · batch 64 · Adam, learning rate **0.0001** |
-| Best validation accuracy | **65.22%**, epoch 50 |
-| Validation cross-entropy at epoch 50 | **0.9432** |
+I trained the model for **50 epochs** with Adam, a learning rate of **0.0001**, a batch size of **64** and categorical cross-entropy. After each epoch, Keras evaluated the model on the validation subset and saved the weights whenever validation accuracy improved. [Training configuration](docs/experiment.md#training-configuration).
+
+| Point in the run | Validation accuracy | Validation cross-entropy |
+| --- | ---: | ---: |
+| Epoch 1 | 21.30% | 1.8888 |
+| Epoch 50 (best checkpoint) | **65.22%** | **0.9432** |
 
 ![Validation accuracy and cross-entropy over the 50 recorded epochs.](assets/validation-curves.svg)
 
-**Figure 3.** Validation accuracy and cross-entropy over the 50 training epochs.
+**Figure 3.** The highest validation accuracy and the lowest validation loss occurred at epoch 50. [Recorded metrics](results/epoch_metrics.csv).
 
-Validation accuracy rose from 21.30% to 65.22% while the loss fell from 1.8888 to 0.9432. Both reached their best recorded value at epoch 50. This is a validation result from one training run; the notebook does not report a separate final test score.
+This score comes from one run on the subset used to select the checkpoint. The notebook does not report a separate final test score. I also checked how the notebook built its confusion matrix. The validation generator shuffled the images while the label vector stayed in directory order. That makes the matrix unsuitable for per-class results. [Evaluation details](docs/experiment.md#recorded-results).
 
-[Training setup and evaluation](docs/experiment.md)
+I used Python with TensorFlow/Keras for the CNN, NumPy to select the predicted class from the output scores and Matplotlib and Seaborn to plot the results.
 
 ## Repository guide
 
@@ -59,4 +50,4 @@ Validation accuracy rose from 21.30% to 65.22% while the loss fell from 1.8888 t
 | [Experiment](docs/experiment.md) · [Results](results/README.md) | Hyperparameters, learning curves and metric tables. |
 | [Execution](docs/reproduction.md) · [References](docs/references.md) | Environment, notebook setup, figure commands and thesis reference. |
 
-*Bachelor's thesis, University of Zagreb, Faculty of Electrical Engineering and Computing (FER), June 2025. Supervisor: Prof. Sonja Grgić, PhD.*
+*Bachelor's thesis, University of Zagreb, Faculty of Electrical Engineering and Computing (FER), June 2025. Supervised by Prof. Sonja Grgić, PhD.*
